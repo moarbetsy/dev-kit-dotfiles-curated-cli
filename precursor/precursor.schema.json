@@ -1,0 +1,480 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Precursor Configuration Schema",
+  "description": "Configuration schema for Precursor project doctor and scaffolder",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "tools": {
+      "type": "object",
+      "description": "Tool configuration per language/stack",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether this tool stack is enabled"
+          },
+          "runtime": {
+            "type": "string",
+            "description": "Runtime/package manager (e.g., 'uv', 'bun', 'cargo')"
+          },
+          "linter": {
+            "type": "string",
+            "description": "Linter tool (e.g., 'ruff', 'biome', 'clippy')"
+          },
+          "formatter": {
+            "type": "string",
+            "description": "Formatter tool (e.g., 'ruff', 'biome', 'rustfmt')"
+          },
+          "typechecker": {
+            "type": "string",
+            "description": "Type checker (e.g., 'pyright', 'basedpyright', 'tsc')"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version constraint or 'latest'"
+          },
+          "installSource": {
+            "type": "string",
+            "enum": ["system", "package-manager", "portable", "auto"],
+            "default": "auto",
+            "description": "Preferred installation source"
+          },
+          "critical": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true, missing tool causes error (unless optional override)"
+          }
+        }
+      }
+    },
+    "python": {
+      "type": "object",
+      "description": "Python-specific configuration",
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "default": "uv",
+          "enum": ["uv", "pip", "poetry"]
+        },
+        "linter": {
+          "type": "string",
+          "default": "ruff"
+        },
+        "formatter": {
+          "type": "string",
+          "default": "ruff"
+        },
+        "typechecker": {
+          "type": "string",
+          "enum": ["pyright", "basedpyright", "none"],
+          "default": "pyright"
+        },
+        "venvPath": {
+          "type": "string",
+          "default": ".venv",
+          "description": "Virtual environment path"
+        }
+      }
+    },
+    "web": {
+      "type": "object",
+      "description": "Web/JS/TS configuration",
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "default": "bun",
+          "enum": ["bun", "node", "npm", "pnpm", "yarn"]
+        },
+        "linter": {
+          "type": "string",
+          "default": "biome",
+          "enum": ["biome", "eslint", "none"]
+        },
+        "formatter": {
+          "type": "string",
+          "default": "biome",
+          "enum": ["biome", "prettier", "none"]
+        },
+        "typechecker": {
+          "type": "string",
+          "enum": ["tsc", "none"],
+          "default": "tsc"
+        },
+        "migrateFrom": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["eslint", "prettier", "stylelint"]
+          },
+          "description": "Offer migration from these tools"
+        }
+      }
+    },
+    "rust": {
+      "type": "object",
+      "description": "Rust configuration",
+      "properties": {
+        "toolchain": {
+          "type": "string",
+          "default": "stable"
+        },
+        "linter": {
+          "type": "string",
+          "default": "clippy"
+        },
+        "formatter": {
+          "type": "string",
+          "default": "rustfmt"
+        },
+        "audit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable cargo audit"
+        },
+        "deny": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable cargo deny"
+        }
+      }
+    },
+    "cpp": {
+      "type": "object",
+      "description": "C/C++ configuration",
+      "properties": {
+        "buildSystem": {
+          "type": "string",
+          "default": "cmake",
+          "enum": ["cmake", "meson", "make"]
+        },
+        "formatter": {
+          "type": "string",
+          "default": "clang-format"
+        },
+        "linter": {
+          "type": "string",
+          "default": "clang-tidy"
+        },
+        "compileCommands": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate compile_commands.json"
+        }
+      }
+    },
+    "docker": {
+      "type": "object",
+      "description": "Docker configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "lint": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "description": "Workspace/monorepo configuration",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["root", "subproject", "auto"],
+          "default": "auto",
+          "description": "How to handle monorepo detection"
+        },
+        "root": {
+          "type": "string",
+          "description": "Explicit workspace root path"
+        }
+      }
+    },
+    "ci": {
+      "type": "object",
+      "description": "CI/CD configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "workflows": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              },
+              "os": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["ubuntu-latest", "windows-latest", "macos-latest"]
+                },
+                "default": ["ubuntu-latest"]
+              },
+              "matrix": {
+                "type": "object",
+                "description": "Matrix build configuration"
+              }
+            }
+          }
+        }
+      }
+    },
+    "mcp": {
+      "type": "object",
+      "description": "MCP server configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "port": {
+          "type": "number",
+          "default": 0,
+          "description": "Port (0 = auto)"
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "description": "Secret scanning configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "ignorePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.venv/**",
+            "**/target/**",
+            "**/dist/**",
+            "**/*.lock",
+            "**/*.lockb"
+          ]
+        },
+        "highEntropyThreshold": {
+          "type": "number",
+          "default": 0.7,
+          "description": "Entropy threshold for secret detection"
+        }
+      }
+    },
+    "update": {
+      "type": "object",
+      "description": "Self-update configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Update endpoint URL"
+        },
+        "version": {
+          "type": "string",
+          "enum": ["latest", "pinned"],
+          "default": "latest"
+        },
+        "pinnedVersion": {
+          "type": "string",
+          "description": "Pinned version (if version = 'pinned')"
+        },
+        "verifySha256": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "backup": {
+      "type": "object",
+      "description": "Backup configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "maxBackups": {
+          "type": "number",
+          "default": 10,
+          "description": "Maximum number of backups to keep"
+        }
+      }
+    },
+    "strict": {
+      "type": "object",
+      "description": "Strict mode configuration",
+      "properties": {
+        "failOnWarnings": {
+          "type": "boolean",
+          "default": false
+        },
+        "failOnMissingTools": {
+          "type": "boolean",
+          "default": false
+        },
+        "requireAllChecks": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "report": {
+      "type": "object",
+      "description": "Report collection configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable report collection"
+        },
+        "reportsDir": {
+          "type": "string",
+          "description": "Directory to store collected reports (default: .precursor/reports)"
+        },
+        "autoCollect": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically collect reports during setup"
+        },
+        "projectName": {
+          "type": "string",
+          "description": "Project name/identifier for collected reports"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "description": "Verification loops configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable verification after scaffolding"
+        },
+        "commands": {
+          "type": "object",
+          "description": "Stack-specific verification commands",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "browserTesting": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable browser-based UI testing (requires cursor-ide-browser MCP)"
+        },
+        "failOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "Fail setup if verification fails"
+        }
+      }
+    },
+    "hooks": {
+      "type": "object",
+      "description": "Post-processing hooks configuration",
+      "properties": {
+        "postScaffold": {
+          "type": "array",
+          "description": "Hooks to run after scaffolding",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Hook name"
+              },
+              "command": {
+                "type": "string",
+                "description": "Command to execute"
+              },
+              "stack": {
+                "type": "string",
+                "description": "Stack this hook applies to (optional)"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "required": ["name", "command"]
+          }
+        }
+      }
+    },
+    "knowledge": {
+      "type": "object",
+      "description": "Shared knowledge base configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable knowledge base"
+        },
+        "file": {
+          "type": "string",
+          "default": ".cursor/PRECURSOR.md",
+          "description": "Path to knowledge base file"
+        }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "description": "Custom slash commands configuration",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Command description"
+          },
+          "steps": {
+            "type": "array",
+            "description": "Command execution steps",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["shell", "interactive"],
+                  "description": "Step type"
+                },
+                "command": {
+                  "type": "string",
+                  "description": "Command to execute (for shell type)"
+                },
+                "prompt": {
+                  "type": "string",
+                  "description": "Prompt text (for interactive type)"
+                }
+              },
+              "required": ["type"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

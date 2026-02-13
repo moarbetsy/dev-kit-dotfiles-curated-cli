@@ -1,81 +1,55 @@
-# Dev-kit (merged setup_script + Curated)
+# dev-kit
 
-**Single entrypoint, rules pipeline, doctor/scan, governance template, CI, release.**  
-Aims for a 100/100-style score: completeness, usability, maintainability, documentation, automation, simplicity, extensibility.
+**One repo, one script: machine setup, new projects, and Cursor project doctor.**
 
-## How dev-kit relates to setup and curated
+Bootstrap a Windows dev machine, create Bun/TS projects with Cursor, or doctor an existing project — all from `curated.ps1`.
 
-- **Setup** (parent dotfiles/setup_script) = bootstrap + setup only: get the machine and dotfiles ready. No single CLI, no doctor/scan/CI/release.
-- **Curated** = the idea of one entrypoint for rules, doctor, scan, projects, governance, CI, release — but no machine/setup.
-- **Dev-kit** = **Setup + Curated** in one repo: one entrypoint (`curated.ps1`) for bootstrap, setup, gen-rules, doctor, scan, new-project, governance, CI, and release. Use dev-kit when you want a single story for “machine + projects + quality.”
+## Quick start
 
-## Why dev-kit, rules, and install
+Run `.\curated.ps1` with no arguments to see the three commands.
 
-**Better than setup/curated alone:** One entrypoint, project rules in repo (edit in `rules-src/`, run `gen-rules`), doctor/scan for CI, governance template, and release packaging. Setup only gives you machine + dotfiles; curated only gives you rules/doctor/scan; dev-kit gives you both plus a single CLI.
+| # | Scenario | Command |
+|---|----------|---------|
+| **1** | Fresh machine | `.\curated.ps1 full-setup` or `.\curated.ps1 go 1` |
+| **2** | New project (Bun/TS + Cursor) | `.\curated.ps1 new <Name> -Type node -RunPrecursor` or `.\curated.ps1 go 2 <Name>` |
+| **3** | Existing project (Cursor doctor) | `.\curated.ps1 setup-cursor` or `.\curated.ps1 go 3` (use `-Path <dir>` from anywhere) |
 
-**Project rules are automatic.** Running `curated.ps1 gen-rules` writes `.cursor/rules/*.mdc` into the repo. Cursor reads those when you open the project — no paste step.
+## Requirements
 
-**Global rules are automatic too.** Per [Cursor docs](https://forum.cursor.com/t/why-cant-user-rules-be-set-in-the-system-user-directory-and-why-can-commands-be-set-in-c-users-user-cursor-commands/148764), global rules can live in `~/.cursor/rules/` (Mac/Linux) or `C:\Users\{user}\.cursor\rules\` (Windows). Setup writes `cursor/ai-rules.txt` into that directory as `dev-kit-global.md`, so they apply to all projects without pasting. Rules are also copied to the clipboard as a fallback.
+- **Windows** with [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/).
+- **PowerShell 7** (recommended); scripts use `pwsh` when available.
+- **Bun** for Precursor (`setup-cursor`) and `new -Type node`; install from [bun.sh](https://bun.sh) if you use those.
+- Quoted paths if they contain spaces. Process-level execution: `pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 <command>`.
 
-**Simpler install.** The easiest path is: clone this repo, then run two commands (setup, then gen-rules). The long one-liner is for machines where you don't clone first (download bootstrap and run). See Quick start below.
+## Install
 
-## One-command entrypoint
-
-```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 help
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 setup
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 new MyApp -Type node
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 new -ProjectName MyApp -Type node -RunDoctor
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 gen-rules
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 doctor
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 scan
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 test
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 release -ReleaseVersion 1.0.0
-```
-
-## What’s included
-
-| Area | Content |
-|------|--------|
-| **Bootstrap** | Long Paths, Developer Mode, optional Defender exclusions, clone, setup; no mandatory restart |
-| **Setup** | PowerShell 7, Git, Starship, zoxide, eza, bat, fd, ripgrep, fzf, gh, Delugia Nerd Font (fallback: JetBrainsMono Nerd Font), Bun, uv; profile, Git, SSH, Cursor rules |
-| **Rules** | `rules-src/` → `curated.ps1 gen-rules` → `.cursor/rules/*.mdc` + `cursor/ai-rules.txt` |
-| **Project** | `curated.ps1 new` (generic/node/python); optional `-FromGovernance`, `-RunDoctor`, GitHub, open in Cursor |
-| **Governance** | `templates/governance/`: README, .gitignore, single CI workflow |
-| **Doctor/Scan** | PowerShell doctor (lockfile, CI, README); scan outputs JSON for CI |
-| **CI** | `.github/workflows/kit.yml`: gen-rules, doctor, scan |
-| **Release** | `curated.ps1 release -ReleaseVersion <ver>` → `dist/dev-kit-<ver>.zip` |
-| **Docs** | `docs/COMMANDS.md`, `docs/AGENT_PROTOCOL.md`, `docs/PATCH_RUNBOOK.md` |
-
-## Quick start (fresh Windows)
-
-**Simplest (clone first):** Clone this repo, then from the repo root:
+Clone this repo, then from the repo root:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 setup
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 gen-rules
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\curated.ps1 test
+.\curated.ps1 full-setup
 ```
 
-Restart the terminal; global rules are already in `%USERPROFILE%\.cursor\rules\` (Cursor loads them automatically). Set Windows Terminal font to Delugia Nerd Font (or JetBrainsMono Nerd Font if Delugia isn’t available in winget); run `gh auth login` if you use GitHub.
+Use `-SkipTest` to skip the test step. Restart your terminal afterward. For a fresh machine without cloning first, see the one-liner in **docs/REFERENCE.md**.
 
-**No clone (one-liner):** For a fresh machine where you don’t clone first, use bootstrap. Set `$env:DEVKIT_OWNER` and `$env:DEVKIT_REPO`, then run the one-liner from `docs/COMMANDS.md` (Option A). Or replace `<OWNER>` and `<REPO>` in the command in `docs/COMMANDS.md` (Option B). Bootstrap downloads the script, runs as admin (Long Paths, Dev Mode), clones the repo, then runs setup.
+## Commands
 
-## Layout
+| Command | Description |
+|---------|-------------|
+| `go` (default) | Show three commands, or run `go 1`, `go 2 <Name>`, `go 3` |
+| `help` | Full command list |
+| `full-setup` | [1] Bootstrap + test (fresh machine) |
+| `new` | [2] Create project; `-Type node -RunPrecursor` for Bun/TS + Cursor |
+| `setup-cursor` | [3] Cursor project doctor in current dir or `-Path <dir>` |
+| `setup` | Full setup: apps, tools, Git, Cursor rules |
+| `bootstrap` | Admin bootstrap (Long Paths, Dev Mode, clone, setup) |
+| `gen-rules` | Regenerate `.cursor/rules` from `rules-src/` |
+| `doctor` | Repo doctor (lockfile, CI, structure) |
+| `scan` | JSON diagnostics (CI) |
+| `test` | gen-rules + doctor + scan |
+| `release -ReleaseVersion <ver>` | Build `dist/dev-kit-<ver>.zip`; optional `-WhatIf` |
 
-- **curated.ps1** — single CLI entrypoint  
-- **scripts/** — bootstrap, setup, new-project, gen-rules, doctor, scan, release, self-test  
-- **rules-src/** — source of truth for rules (edit here; gen-rules copies out)  
-- **templates/governance/** — project template with CI contract  
-- **docs/** — COMMANDS, AGENT_PROTOCOL, PATCH_RUNBOOK  
-- **powershell/, starship/, git/, cursor/** — config (linked by setup)
+## More
 
-## Configuration
+Copy-paste commands, one-liner bootstrap, agent protocol, runbook, and extending: **docs/REFERENCE.md**.
 
-- **Dev root**: `D:\cursor_projects` (override with `$env:DEVROOT` or setup params)  
-- **Git**: MoarBetsy / MoarBetsy@gmail.com (override in bootstrap/setup)
-
-## Compatibility
-
-- **Windows** with winget; PowerShell 7 recommended.  
-- Use quoted paths if they contain spaces; use process-level `-ExecutionPolicy Bypass` (no system change).
+Layout: scripts in `scripts/`, Cursor doctor in `precursor/`, rules source in `rules-src/`.

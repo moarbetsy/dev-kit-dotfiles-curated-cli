@@ -57,12 +57,12 @@ if (-not $GovernanceOnly) {
     [void]$issues.Add("No README.md")
   }
 
-  # Dev-kit repo: require rules-src, .cursor/rules (when rules-src exists), templates/governance, docs/COMMANDS.md
+  # Dev-kit repo: require rules-src, .cursor/rules (when rules-src exists), templates/governance, docs/REFERENCE.md
   if ($isKitRepo -and -not $SkipRulesCheck) {
     $rulesSrc = Join-Path $root "rules-src"
     $cursorRules = Join-Path $root ".cursor\rules"
     $govTemplate = Join-Path $root "templates\governance"
-    $commandsMd = Join-Path $root "docs\COMMANDS.md"
+    $referenceMd = Join-Path $root "docs\REFERENCE.md"
 
     if (-not (Test-Path $rulesSrc)) {
       [void]$issues.Add("dev-kit repo missing rules-src/")
@@ -77,7 +77,7 @@ if (-not $GovernanceOnly) {
       if (-not (Test-Path $aiRules)) { [void]$issues.Add("cursor/ai-rules.txt missing (run curated.ps1 gen-rules)") }
     }
     if (-not (Test-Path $govTemplate)) { [void]$issues.Add("dev-kit repo missing templates/governance/") }
-    if (-not (Test-Path $commandsMd)) { [void]$issues.Add("dev-kit repo missing docs/COMMANDS.md") }
+    if (-not (Test-Path $referenceMd)) { [void]$issues.Add("dev-kit repo missing docs/REFERENCE.md") }
   }
 }
 

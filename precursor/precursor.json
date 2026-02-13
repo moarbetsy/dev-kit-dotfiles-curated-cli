@@ -1,0 +1,68 @@
+{
+  "$schema": "./precursor.schema.json",
+  "python": {
+    "runtime": "uv",
+    "linter": "ruff",
+    "formatter": "ruff",
+    "typechecker": "pyright"
+  },
+  "web": {
+    "runtime": "bun",
+    "linter": "biome",
+    "formatter": "biome",
+    "typechecker": "tsc"
+  },
+  "rust": {
+    "toolchain": "stable",
+    "linter": "clippy",
+    "formatter": "rustfmt"
+  },
+  "cpp": {
+    "buildSystem": "cmake",
+    "formatter": "clang-format",
+    "linter": "clang-tidy",
+    "compileCommands": true
+  },
+  "workspace": {
+    "mode": "auto"
+  },
+  "ci": {
+    "enabled": true,
+    "workflows": {
+      "python": {
+        "enabled": true,
+        "os": ["ubuntu-latest"]
+      },
+      "web": {
+        "enabled": true,
+        "os": ["ubuntu-latest"]
+      },
+      "rust": {
+        "enabled": true,
+        "os": ["ubuntu-latest"]
+      }
+    }
+  },
+  "mcp": {
+    "enabled": true
+  },
+  "secrets": {
+    "enabled": true,
+    "ignorePatterns": [
+      "**/node_modules/**",
+      "**/.venv/**",
+      "**/target/**",
+      "**/dist/**",
+      "**/*.lock",
+      "**/*.lockb"
+    ]
+  },
+  "backup": {
+    "enabled": true,
+    "maxBackups": 10
+  },
+  "verification": {
+    "enabled": true,
+    "failOnError": false
+  }
+}

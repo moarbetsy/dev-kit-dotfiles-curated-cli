@@ -1,0 +1,1 @@
+{"name":"precursor","version":"0.0.0","private":true,"type":"module","dependencies":{"@modelcontextprotocol/sdk":"^1.0.4","ajv":"^8.17.1","jsonc-parser":"^3.3.1","yaml":"^2.8.2"},"devDependencies":{"@biomejs/biome":"^1.9.4","@types/bun":"latest","typescript":"^5.7.2"}}
